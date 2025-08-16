@@ -1,0 +1,33 @@
+<!DOCTYPE html>
+<html>
+<head><title>Assistant</title></head>
+<body>
+  <textarea id="prompt"></textarea>
+  <button onclick="ask()">Ask</button>
+  <pre id="response"></pre>
+  <ul id="refs"></ul>
+
+  <script>
+    async function ask() {
+      const prompt = document.getElementById('prompt').value;
+      const res = await fetch('/ask', {
+        method: 'POST',
+        headers: {'Content-Type': 'application/json'},
+        body: JSON.stringify({prompt})
+      });
+      const data = await res.json();
+      document.getElementById('response').textContent = data.content;
+      const list = document.getElementById('refs');
+      list.innerHTML = '';
+      data.citations.forEach((c, i) => {
+        const li = document.createElement('li');
+        const a = document.createElement('a');
+        a.href = c.url;
+        a.textContent = `View reference ${i+1}: ${c.file} page ${c.page}`;
+        li.appendChild(a);
+        list.appendChild(li);
+      });
+    }
+  </script>
+</body>
+</html>
